@@ -19,6 +19,8 @@ package {
     require => Class['java'];
   'git':
     ensure => 'latest';
+  'curl':
+    ensure => 'latest';
 }
 
 # git clone https://github.com/OpenNMS/newts.git
@@ -82,6 +84,24 @@ java_service_wrapper::service{ 'newts':
   require            => Exec['init_newts']
 }
 
+# cp
+file { "${newts_home}/sample-measurements.txt":
+  ensure  => file,
+  source  => '/vagrant/files/measurements.txt',
+  owner   => root,
+  group   => root,
+  mode    => 644
+}
+
+# Add the sample measurements
+exec { 'newts_sample_data':
+  cwd     => $newts_home,
+  command => "curl -X POST -H 'Content-Type: application/json' -d @sample-measurements.txt http://0.0.0.0:8080/samples && touch ${newts_home}/sampled",
+  path    => "/usr/local/bin/:/usr/bin:/bin/",
+  creates => "${newts_home}/sampled",
+  require => [Java_service_wrapper::Service['newts'], Package['curl']],
+}
+
 # Hack used to trigger a delayed `/etc/init.d/newts start` in hope that Cassandra is up and running
 file { '/etc/rc.local':
   ensure  => file,
@@ -90,4 +110,4 @@ file { '/etc/rc.local':
   group   => root,
   mode    => 755
 }
-  
+
