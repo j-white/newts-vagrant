@@ -1,0 +1,7 @@
+#!/bin/sh -e
+# This file is managed by Puppet.
+
+sleep 10 && bash /etc/init.d/newts start 2>&1 > /tmp/newts_start.log &
+
+exit 0
+
