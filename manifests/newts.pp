@@ -15,17 +15,17 @@ $newts_target_jar = "${newts_local_repo}/rest/target/newts-rest-${newts_version}
 # apt-get install maven git
 package {
   'maven':
-    ensure  => 'latest',
+    ensure  => latest,
     require => Class['java'];
   'git':
-    ensure => 'latest';
+    ensure => latest;
   'curl':
-    ensure => 'latest';
+    ensure => latest;
 }
 
 # git clone https://github.com/OpenNMS/newts.git
 vcsrepo { $newts_local_repo:
-  ensure   => present,
+  ensure   => latest,
   user     => vagrant,
   provider => git,
   source   => 'https://github.com/OpenNMS/newts.git',
@@ -43,6 +43,7 @@ exec { 'build_newts':
   user    => vagrant,
   creates => $newts_target_jar,
   require => [Package['maven'], Vcsrepo[$newts_local_repo]],
+  subscribe => Vcsrepo[$newts_local_repo]
 }
 
 # mkdir
@@ -50,10 +51,10 @@ file { [ $newts_home ]:
   ensure => 'directory'
 }
 
-# cp
+# ln
 file { $newts_jar:
-  ensure  => file,
-  source  => $newts_target_jar,
+  ensure  => 'link',
+  target  => $newts_target_jar,
   require => [File[$newts_home], Exec['build_newts']]
 }
 
@@ -81,7 +82,8 @@ java_service_wrapper::service{ 'newts':
   wrapper_library    => ['/usr/local/lib'],
   wrapper_classpath  => ['/usr/local/lib/wrapper.jar', $newts_jar],
   wrapper_parameter  => [$newts_jar, 'server', $newts_config ],
-  require            => Exec['init_newts']
+  require            => Exec['init_newts'],
+  subscribe          => Exec['build_newts'],
 }
 
 # cp
@@ -99,7 +101,7 @@ exec { 'newts_sample_data':
   command => "curl -X POST -H 'Content-Type: application/json' -d @sample-measurements.txt http://0.0.0.0:8080/samples && touch ${newts_home}/sampled",
   path    => "/usr/local/bin/:/usr/bin:/bin/",
   creates => "${newts_home}/sampled",
-  require => [Java_service_wrapper::Service['newts'], Package['curl']],
+  require => [Service['newts'], Package['curl']],
 }
 
 # Hack used to trigger a delayed `/etc/init.d/newts start` in hope that Cassandra is up and running
