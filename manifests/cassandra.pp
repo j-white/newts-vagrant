@@ -1,25 +1,27 @@
 include apt
 
-apt::key { 'datastax':
-  key        => 'B4FE9662',
-  key_source => 'http://debian.datastax.com/debian/repo_key',
+apt::key { 'asf-cassandra':
+  key        => '2B5C1B00',
+  key_server => 'pgp.mit.edu',
 }
 
-apt::source { 'datastax':
-  location   => 'http://debian.datastax.com/community',
-  release    => 'stable',
+apt::source { 'asf-cassandra':
+  location   => 'http://www.apache.org/dist/cassandra/debian',
+  release    => '20x',
   repos      => 'main',
-  key        => 'B4FE9662',
+  key        => 'F758CE318D77295D',
+  key_server => 'pgp.mit.edu',
+  require    => Apt::Key['asf-cassandra'],
 }
 
-package { 'dsc20':
+package { 'cassandra':
   ensure => 'latest',
-  require => Apt::Source['datastax']
+  require => Apt::Source['asf-cassandra']
 }
 
 service { 'cassandra':
   ensure  => 'running',
   enable  => true,
-  require => [Package['dsc20'], Class['java']]
+  require => [Package['cassandra'], Class['java']]
 }
 
