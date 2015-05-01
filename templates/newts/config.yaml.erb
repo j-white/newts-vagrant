@@ -1,3 +1,4 @@
+
 # This is a Dropwizard-based configuration file, see the documentation at
 # http://www.dropwizard.io for additional configuration information.
 
@@ -6,64 +7,284 @@ cassandra:
   keyspace: newts
   host: localhost
   port: 9042
+  time-to-live: 31536000
+  compression: none
 
-# This is an experimental feature.  It may change drastically, and in
-# completely incompatible ways, or be removed entirely in a future release.
-# Use this at your own risk.
-indexing:
+# Resource search indexing
+search:
   enabled: true
-  # Number of entries to cache in memory (used to avoid redudant writes).
+  # Cache of resource metadata; Used to avoid redundant indexing
   maxCacheEntries: 1000000
-  cassandra:
-    keyspace: newts
-    host: localhost
-    port: 9042
-    ttl: 31536000
-  
+
+# If enabled, suitable file permissions should be used to keep thess credentials
+# secret, and HTTPS enabled (see the servers section below) to prevent exposing
+# them over the network.
+authentication:
+  enabled: false
+  credentials:
+    eevans: notsecret
+    pquill: notsafe
+
+# See http://dropwizard.io/manual/configuration.html#servers for a complete
+# configuration reference.
+# server:
+#   applicationConnectors:
+#     - type: http
+#       port: 8080
+#     - type: https
+#       port: 8443
+#       keyStorePath: /path/to/keystore.jks
+#       keyStorePassword: password
+#       validateCerts: false
+
 logging:
   level: INFO
+  # Logging is sent to the console by default; Uncomment the following and
+  # set the paths accordingly to log to a file.
+  # appenders:
+  #   - type: file
+  #     currentLogFilename: /path/to/newts.log
+  #     threshold: ALL
+  #     archive: true
+  #     archivedLogFilenamePattern: /path/to/newts-%d.log
+  #     archivedFileCount: 5
+  #     timeZone: UTC
 
 reports:
+  gauge:
+    interval: 10s
+    datasources:
+      - label: value
+        source: value
+        function: AVERAGE
+        heartbeat: 10s
+    exports:
+      - value
+
+  counter:
+    interval: 10s
+    datasources:
+      - label: count
+        source: count
+        function: AVERAGE
+        heartbeat: 10s
+    exports:
+      - count
+
+  meter:
+    interval: 10s
+    datasources:
+      - label: count
+        source: count
+        function: AVERAGE
+        heartbeat: 20s
+      - label: mean_rate
+        source: mean_rate
+        function: AVERAGE
+        heartbeat: 20s
+      - label: m1_rate
+        source: m1_rate
+        function: AVERAGE
+        heartbeat: 20s
+      - label: m5_rate
+        source: m5_rate
+        function: AVERAGE
+        heartbeat: 20s
+      - label: m15_rate
+        source: m15_rate
+        function: AVERAGE
+        heartbeat: 20s
+    exports:
+      - count
+      - mean_rate
+      - m1_rate
+      - m5_rate
+      - m15_rate    
+
+  historgram:
+    interval: 10s
+    datasources:
+      - label: count
+        source: count
+        function: AVERAGE
+        heartbeat: 20s
+      - label: max
+        source: max
+        function: AVERAGE
+        heartbeat: 20s
+      - label: mean 
+        source: mean 
+        function: AVERAGE
+        heartbeat: 20s
+      - label: min 
+        source: min 
+        function: AVERAGE
+        heartbeat: 20s
+      - label: stddev 
+        source: stddev 
+        function: AVERAGE
+        heartbeat: 20s
+      - label: p50 
+        source: p50 
+        function: AVERAGE
+        heartbeat: 20s
+      - label: p75 
+        source: p75 
+        function: AVERAGE
+        heartbeat: 20s
+      - label: p95 
+        source: p95 
+        function: AVERAGE
+        heartbeat: 20s
+      - label: p98 
+        source: p98 
+        function: AVERAGE
+        heartbeat: 20s
+      - label: p99
+        source: p99
+        function: AVERAGE
+        heartbeat: 20s
+      - label: p999
+        source: p999
+        function: AVERAGE
+        heartbeat: 20s
+    exports:
+      - count
+      - max
+      - mean
+      - min
+      - stddev
+      - p50
+      - p75
+      - p95
+      - p98
+      - p99
+      - p999
+
+  timer:
+    interval: 10s
+    datasources:
+      - label: count
+        source: count
+        function: AVERAGE
+        heartbeat: 20s
+      - label: max
+        source: max
+        function: AVERAGE
+        heartbeat: 20s
+      - label: mean 
+        source: mean 
+        function: AVERAGE
+        heartbeat: 20s
+      - label: min 
+        source: min 
+        function: AVERAGE
+        heartbeat: 20s
+      - label: stddev 
+        source: stddev 
+        function: AVERAGE
+        heartbeat: 20s
+      - label: p50 
+        source: p50 
+        function: AVERAGE
+        heartbeat: 20s
+      - label: p75 
+        source: p75 
+        function: AVERAGE
+        heartbeat: 20s
+      - label: p95 
+        source: p95 
+        function: AVERAGE
+        heartbeat: 20s
+      - label: p98 
+        source: p98 
+        function: AVERAGE
+        heartbeat: 20s
+      - label: p99
+        source: p99
+        function: AVERAGE
+        heartbeat: 20s
+      - label: p999
+        source: p999
+        function: AVERAGE
+        heartbeat: 20s
+      - label: mean_rate
+        source: mean_rate
+        function: AVERAGE
+        heartbeat: 20s
+      - label: m1_rate
+        source: m1_rate
+        function: AVERAGE
+        heartbeat: 20s
+      - label: m5_rate
+        source: m5_rate
+        function: AVERAGE
+        heartbeat: 20s
+      - label: m15_rate
+        source: m15_rate
+        function: AVERAGE
+        heartbeat: 20s
+    exports:
+      - count
+      - max
+      - mean
+      - min
+      - stddev
+      - p50
+      - p75
+      - p95
+      - p98
+      - p99
+      - p999
+      - mean_rate
+      - m1_rate
+      - m5_rate
+      - m15_rate
+  
   gsod:
-    interval: 3600
+    interval: 3600s
     datasources:
       - label: meanTemp
         source: meanTemperature
         function: AVERAGE
-        heartbeat: 7200
+        heartbeat: 7200s
       - label: maxTemp
         source: maxTemperature
         function: AVERAGE
-        heartbeat: 7200
+        heartbeat: 7200s
       - label: minTemp
         source: minTemperature
         function: AVERAGE
-        heartbeat: 7200
+        heartbeat: 7200s
     exports:
       - meanTemp
       - maxTemp
       - minTemp
 
   temps:
-    interval: 300
+    interval: 300s
     datasources:
       - label: inlet
         source: inlet
         function: AVERAGE
-        heartbeat: 600
+        heartbeat: 600s
+    expressions:
+      - label: sum
+        expression: inlet * 100
     exports:
       - inlet
+      - sum
 
   octets:
-    interval: 300
+    interval: 300s
     datasources:
       - label: inOctets
         source: ifInOctets
-        heartbeat: 600
+        heartbeat: 600s
         function: AVERAGE
       - label: outOctets
         source: ifOutOctets
-        heartbeat: 600
+        heartbeat: 600s
         function: AVERAGE
     exports:
       - inOctets
