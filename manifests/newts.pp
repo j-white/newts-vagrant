@@ -72,7 +72,8 @@ file { $newts_config:
 # /opt/newts/bin/init /opt/newts/etc/config.yaml
 exec { 'init_newts':
   cwd     => $newts_home,
-  command => "${newts_init} ${newts_config} && touch ${newts_home}/initialized",
+  # Wait for the RPC port to be opened by the Cassanda service - it may take a few seconds after the service was started
+  command => "sleep 10 && ${newts_init} ${newts_config} && touch ${newts_home}/initialized",
   path    => "/usr/local/bin/:/usr/bin:/bin/",
   creates => "${newts_home}/initialized",
   require => [File[$newts_config], Service['cassandra']]
@@ -98,7 +99,8 @@ file { "${newts_home}/samples.txt":
 # Add the sample measurements
 exec { 'newts_sample_data':
   cwd     => $newts_home,
-  command => "curl -X POST -H 'Content-Type: application/json' -d @samples.txt http://0.0.0.0:8080/samples && touch ${newts_home}/sampled",
+  # Wait for the HTTP port to be opened by the Newts service - it may take a few seconds after the service was started
+  command => "sleep 10 && curl -X POST -H 'Content-Type: application/json' -d @samples.txt http://0.0.0.0:8080/samples && touch ${newts_home}/sampled",
   path    => "/usr/local/bin/:/usr/bin:/bin/",
   creates => "${newts_home}/sampled",
   require => [Exec['start_newts'], Package['curl']],
