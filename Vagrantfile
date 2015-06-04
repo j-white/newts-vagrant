@@ -4,11 +4,14 @@
 Vagrant.configure(2) do |config|
   config.vm.box = "ubuntu/trusty64"
 
-  # Newts
+  # Newts - Graphite Lister
+  config.vm.network :forwarded_port, guest: 2003, host: 2003
+  # Newts - UI + ReST API
   config.vm.network :forwarded_port, guest: 8080, host: 8080
+  # Newts - Dropwizard Admin/Operation Menu
   config.vm.network :forwarded_port, guest: 8081, host: 8081
 
-  # Cassandra
+  # Cassandra - CQL Native Transport
   config.vm.network :forwarded_port, guest: 9042, host: 19042
 
   config.vm.provider :virtualbox do |vb|
