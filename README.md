@@ -1,4 +1,4 @@
-newts-vagrant
+vagrant-newts
 =============
 
 A simple way to start using [Newts](http://newts.io):
