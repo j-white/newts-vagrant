@@ -1,0 +1,5 @@
+#!/bin/sh
+export PATH="$PATH:/usr/local/bin/:/usr/bin:/bin/"
+NEWTS_VERSION=`python -c "import xml.etree.ElementTree as ET; print(ET.parse(open('pom.xml')).getroot().find( '{http://maven.apache.org/POM/4.0.0}version').text)";`
+tar zxvf assembly/target/newts-${NEWTS_VERSION}-bin.tar.gz -C /opt
+ln -s /opt/newts-${NEWTS_VERSION} <%= @newts_home %>

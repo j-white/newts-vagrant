@@ -24,7 +24,9 @@ Vagrant.configure(2) do |config|
      puppet.manifest_file  = "site.pp"
      puppet.module_path = "modules"
      puppet.facter = {
-         "vagrant" => "1"
+         "vagrant" => "1",
+         # The name of the branch or tag to build
+         "newts_git_branch" => "master",
      }
      puppet.options = ["--templatedir","/vagrant/templates"]
   end
