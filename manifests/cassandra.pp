@@ -1,4 +1,5 @@
 include apt
+Exec["apt_update"] -> Package <| |>
 
 apt::key { 'asf-cassandra-1':
   key        => '2B5C1B00',
