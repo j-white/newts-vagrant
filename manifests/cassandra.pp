@@ -25,28 +25,59 @@ package { 'cassandra':
   require => Apt::Source['asf-cassandra']
 }
 
+service { 'cassandra':
+  ensure  => 'running',
+  enable  => true,
+  require => [Package['cassandra'], Class['java']]
+}
+
 file { '/etc/cassandra/cassandra.yaml':
   ensure  => present,
   require => Package['cassandra']
 }
 
+file { '/etc/cassandra/cassandra-env.sh':
+  ensure  => present,
+  require => Package['cassandra']
+}
+
 file_line { 'Listen on all addresses':
-  path    => '/etc/cassandra/cassandra.yaml',  
+  path    => '/etc/cassandra/cassandra.yaml',
   line    => 'rpc_address: 0.0.0.0',
   match   => "^rpc_address.*$",
-  require => File['/etc/cassandra/cassandra.yaml']
+  require => File['/etc/cassandra/cassandra.yaml'],
+  notify  => Service["cassandra"],
 }
 
 file_line { 'Use a specific broadcast address':
-  path    => '/etc/cassandra/cassandra.yaml',  
+  path    => '/etc/cassandra/cassandra.yaml',
   line    => 'broadcast_rpc_address: 127.0.0.1',
   match   => ".*broadcast_rpc_address:.*",
-  require => File['/etc/cassandra/cassandra.yaml']
+  require => File['/etc/cassandra/cassandra.yaml'],
+  notify  => Service["cassandra"],
 }
 
-service { 'cassandra':
-  ensure  => 'running',
-  enable  => true,
-  require => [Package['cassandra'], Class['java'], File_Line['Listen on all addresses'], File_Line['Use a specific broadcast address']]
+file_line { 'Allow remote JMX connections':
+  path    => '/etc/cassandra/cassandra-env.sh',
+  line    => 'LOCAL_JMX=no',
+  match   => "^LOCAL_JMX.*",
+  require => File['/etc/cassandra/cassandra-env.sh'],
+  notify  => Service["cassandra"],
+}
+
+file_line { 'Disable JMX authentication':
+  path    => '/etc/cassandra/cassandra-env.sh',
+  line    => '  JVM_OPTS="$JVM_OPTS -Dcom.sun.management.jmxremote.authenticate=false"',
+  match   => ".*jmxremote\\.authenticate.*",
+  require => File['/etc/cassandra/cassandra-env.sh'],
+  notify  => Service["cassandra"],
+}
+
+file_line { 'Set the RMI server hostname':
+  path    => '/etc/cassandra/cassandra-env.sh',
+  line    => 'JVM_OPTS="$JVM_OPTS -Djava.rmi.server.hostname=127.0.0.1"',
+  match   => ".*rmi\\.server\\.hostname.*",
+  require => File['/etc/cassandra/cassandra-env.sh'],
+  notify  => Service["cassandra"],
 }
 

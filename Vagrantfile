@@ -7,12 +7,16 @@ Vagrant.configure(2) do |config|
   # Newts - Graphite Lister
   config.vm.network :forwarded_port, guest: 2003, host: 2003
   # Newts - UI + ReST API
-  config.vm.network :forwarded_port, guest: 8080, host: 8080
+  config.vm.network :forwarded_port, guest: 8080, host: 18080
   # Newts - Dropwizard Admin/Operation Menu
-  config.vm.network :forwarded_port, guest: 8081, host: 8081
+  config.vm.network :forwarded_port, guest: 8081, host: 18081
 
   # Cassandra - CQL Native Transport
-  config.vm.network :forwarded_port, guest: 9042, host: 19042
+  config.vm.network :forwarded_port, guest: 9042, host: 9042
+  # Cassandra - Thrift
+  config.vm.network :forwarded_port, guest: 9160, host: 9160
+  # Cassandra - JMX
+  config.vm.network :forwarded_port, guest: 7199, host: 7199
 
   config.vm.provider :virtualbox do |vb|
      vb.name = "newts"
