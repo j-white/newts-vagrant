@@ -7,4 +7,4 @@ A simple way to start using [Newts](http://newts.io):
     $ vagrant up
     $ ./query.sh
 
-Once provisioned, you can access the UI via http://127.0.0.1:8080/ui/
+Once provisioned, you can access the UI via http://127.0.0.1:18080/ui/
