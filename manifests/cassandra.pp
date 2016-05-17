@@ -41,6 +41,14 @@ file { '/etc/cassandra/cassandra-env.sh':
   require => Package['cassandra']
 }
 
+file_line { 'Disable the broken JVM version matching.':
+  path    => '/etc/cassandra/cassandra-env.sh',
+  line    => 'if [ "$JVM_VERSION" \< "1.8" ] && false ; then',
+  match   => 'JVM_VERSION" \\< "1.8"',
+  require => File['/etc/cassandra/cassandra-env.sh'],
+  notify  => Service["cassandra"],
+}
+
 file_line { 'Listen on all addresses':
   path    => '/etc/cassandra/cassandra.yaml',
   line    => 'rpc_address: 0.0.0.0',
